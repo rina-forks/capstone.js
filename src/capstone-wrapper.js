@@ -4,11 +4,13 @@
  */
 
 // Emscripten demodularize
-MCapstone = MCapstone();
+MCapstone = await MCapstone();
+
+var zero = BigInt(0);
 
 var cs = {
     MCapstone: MCapstone,
-    
+
     // Return codes
     ERR_OK: 0,         // No error: everything was fine
     ERR_MEM: 1,        // Out-Of-Memory error: cs_open(), cs_disasm(), cs_disasm_iter()
@@ -93,15 +95,15 @@ var cs = {
     SUPPORT_X86_REDUCE: 0xFFFF + 2,
 
     version: function() {
-        major_ptr = MCapstone._malloc(4);
-        minor_ptr = MCapstone._malloc(4);
+        var major_ptr = MCapstone._malloc(4);
+        var minor_ptr = MCapstone._malloc(4);
         var ret = MCapstone.ccall('cs_version', 'number',
             ['pointer', 'pointer'], [major_ptr, minor_ptr]);
-        major = MCapstone.getValue(major_ptr, 'i32');
-        minor = MCapstone.getValue(minor_ptr, 'i32');
+        var major = MCapstone.getValue(major_ptr, 'i32');
+        var minor = MCapstone.getValue(minor_ptr, 'i32');
         MCapstone._free(major_ptr);
         MCapstone._free(minor_ptr);
-        return ret;
+        return [major, minor];
     },
 
     support: function(query) {
@@ -511,7 +513,7 @@ var cs = {
             var handle = MCapstone.getValue(this.handle_ptr, 'i32');
 
             // Allocate buffer and copy data
-            var buffer_len = buffer.length;
+            var buffer_len = (buffer.length);
             var buffer_ptr = MCapstone._malloc(buffer_len);
             MCapstone.writeArrayToMemory(buffer, buffer_ptr);
 
@@ -520,7 +522,7 @@ var cs = {
 
             var count = MCapstone.ccall('cs_disasm', 'number',
                 ['number', 'pointer', 'number', 'number', 'number', 'pointer'],
-                [handle, buffer_ptr, buffer_len, addr, 0, max || 0, insn_ptr_ptr]
+                [handle, buffer_ptr, (buffer_len), BigInt(addr), 0, insn_ptr_ptr]
             );
             if (count == 0 && buffer_len != 0) {
                 MCapstone._free(insn_ptr_ptr);
@@ -605,3 +607,6 @@ if (typeof define === 'function' && define.amd) {
 } else if (typeof module === 'object' && module.exports) {
     module.exports = cs;
 }
+
+window.cs = cs;
+export default cs;
