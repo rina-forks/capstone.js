@@ -108,7 +108,7 @@ def compileCapstone(targets):
         'ccall', 'getValue', 'setValue', 'writeArrayToMemory', 'UTF8ToString'
     ]
     cmd = os.path.expandvars('emcc')
-    cmd += ' -Os --memory-init-file 0'
+    cmd += ' -Os' # --memory-init-file 0'
     cmd += ' capstone/libcapstone.a'
     cmd += ' -s EXPORTED_FUNCTIONS=\''+ '\',\''.join(exports) +'\''
     cmd += ' -s EXPORTED_RUNTIME_METHODS=\''+ '\',\''.join(methods) +'\''
